@@ -1,0 +1,12 @@
+name: soccer-analytics-library
+title: soccer-analytics-library
+username:
+account: larsmaurath
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3439360
+bundleId: 4051637
+url: https://larsmaurath.shinyapps.io/soccer-analytics-library/
+when: 1609625063.77008
+asMultiple: FALSE
+asStatic: FALSE
