@@ -103,7 +103,8 @@ server <- shinyServer(function(input, output, session) {
             group_by(!!rlang::sym(input$aggregate)) %>%
             summarize(nodesize = 50*n(), .groups = 'drop') %>%
             mutate(title = !!rlang::sym(input$aggregate)) %>%
-            mutate(!!paste0("first_", input$aggregate) := !!rlang::sym(input$aggregate))
+            mutate(!!paste0("first_", input$aggregate) := !!rlang::sym(input$aggregate)) %>%
+            mutate(author = NA) # This is done to distinguish aggregation nodes from regular nodes
         
         table <- bind_rows(table, aggregation_nodes) %>%
             mutate(id = row_number() - 1)
@@ -162,8 +163,10 @@ server <- shinyServer(function(input, output, session) {
     focus_table <- reactive({
         if(!length(input$id)){
             table <- nodes_filtered()
-        } else if(grepl("<", input$id, fixed = TRUE)){
-            table <- nodes_filtered() %>% filter(first_topic == gsub(".*>(.+)<.*", "\\1", input$id))
+        } else if(grepl("<", input$id, fixed = TRUE) & input$aggregate == "topic"){
+            table <- nodes_filtered() %>% filter(grepl(gsub(".*>(.+)<.*", "\\1", input$id), topic, fixed = TRUE))
+        } else if(grepl("<", input$id, fixed = TRUE) & input$aggregate == "author"){
+            table <- nodes_filtered() %>% filter(grepl(gsub(".*>(.+)<.*", "\\1", input$id), author, fixed = TRUE))
         } else{
             table <- nodes_filtered() %>% filter(title == input$id)
         }
@@ -181,22 +184,22 @@ server <- shinyServer(function(input, output, session) {
         
         table <- focus_table() %>%
             filter(!is.na(author)) %>%
-            select(title, type, publication_date, link, abstract)
+            select(title, author, topic, type, publication_date, link, abstract)
         
         DT::datatable(
             cbind(' ' = '&oplus;', table),
             escape = FALSE,
             options = list(
                 columnDefs = list(
-                    list(visible = FALSE, targets = c(0, 6)),
+                    list(visible = FALSE, targets = c(0, 3, 8)),
                     list(orderable = FALSE, className = 'details-control', targets = 1)
                 )
             ),
             callback = JS("
                     table.column(1).nodes().to$().css({cursor: 'pointer'});
                     var format = function(d) {
-                        return '<div style=\"background-color:#eee; padding: .5em;\"> <b>Abstract:</b> ' +
-                        d[6] + '</div>';
+                        return '<div style=\"background-color:#eee; padding: .5em;\"> <b>Authors:</b> ' +
+                        d[3] + '<br>' + '<b>Abstract:</b> ' +  d[8] +'</div>';
                     };
                     table.on('click', 'td.details-control', function() {
                         var td = $(this), row = table.row(td.closest('tr'));
