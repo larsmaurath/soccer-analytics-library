@@ -5,9 +5,9 @@ account: larsmaurath
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3439360
-bundleId: 4053683
+bundleId: 4074407
 url: https://larsmaurath.shinyapps.io/soccer-analytics-library/
-when: 1609694070.44007
+when: 1610155571.86026
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .gitattributes|README.md|data/author.gif|data/date.gif|data/paper.gif|data/topic.gif
+ignoredFiles: .gitattributes|README.md

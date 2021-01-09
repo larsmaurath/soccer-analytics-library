@@ -19,6 +19,14 @@ authors <- separate_rows(nodes, author, sep = ", ") %>%
     select(author) %>%
     arrange(author)
 
+topics <- separate_rows(nodes, topic, sep = ", ") %>%
+    select(topic) %>%
+    arrange(topic)
+
+institutions <- separate_rows(nodes, institution, sep = ", ") %>%
+    select(institution) %>%
+    arrange(institution)
+
 years <- nodes %>%
     mutate(year = as.numeric(substring(publication_date, 1, 4))) %>%
     select(year) %>%
@@ -31,30 +39,54 @@ ui <- shinyUI(
         
         sidebarLayout(
             sidebarPanel(
+                
+                h6("Use the aggregation and filter controls to change how the network graph is visualized."),
+                h6("The table has both search and sorting functionality. To view a paper's abstract and authors toggle the little + button
+                    next to a paper's title."),
+                h6("To revert to the original graph and table click the 'Reset' button."),
+                
+                h4("Aggregation"),
+                
                 selectInput("aggregate", 
-                            label = h4("Aggregate By"), 
-                            choices = list("Topic" = "topic", "Author" = "author"), 
+                            label = h5("Aggregate By"), 
+                            choices = list("Topic" = "topic", "Author" = "author", "Institution" = "institution"), 
                             selected = 1),
                 
-                h3("Filter"),
+                h4("Filter"),
                 
-                selectInput("type_filter",
-                            label = h4("By Type"),
-                            choices = setNames(c("All", unique(nodes$type)), c("All", unique(nodes$type))),
+                selectInput("topic_filter",
+                            label = h5("By Topic"),
+                            choices = setNames(c("All", unique(topics$topic)), c("All", unique(topics$topic))),
                             selected = 1),
-                
+
                 selectInput("author_filter",
-                            label = h4("By Author"),
+                            label = h5("By Author"),
                             choices = setNames(c("All", unique(authors$author)), c("All", unique(authors$author))),
                             selected = 1),
-                
-                sliderInput("date_filter", label = h4("By Publication Year"),
+
+                selectInput("institution_filter",
+                            label = h5("By Institution"),
+                            choices = setNames(c("All", unique(institutions$institution)), c("All", unique(institutions$institution))),
+                            selected = 1),                
+
+                selectInput("type_filter",
+                            label = h5("By Type"),
+                            choices = setNames(c("All", unique(nodes$type)), c("All", unique(nodes$type))),
+                            selected = 1),                
+                                                                
+                sliderInput("date_filter", 
+                            label = h5("By Publication Year"),
                             min = min(years), 
                             max = max(years), 
                             value = c(min(years), max(years)),
                             sep = ""),
                 
                 actionButton("reset_input", label = "Reset"),
+                
+                h6("To report a broken link, suggest the addition of a research article or report any other error please open an issue on Github 
+                   or reach out on Twitter:"),
+                tags$a(href="https://github.com/larsmaurath/soccer-analytics-library", "Github", target="_blank"),
+                tags$a(href="https://twitter.com/thesignigame", "Twitter", target="_blank"),
                 
                 width = 2
             ),
@@ -74,7 +106,8 @@ server <- shinyServer(function(input, output, session) {
         updateSelectInput(session, "aggregate", selected = "topic")
         updateSelectInput(session, "type_filter", selected = "All")
         updateSelectInput(session, "author_filter", selected = "All")
-        updateSelectInput(session, "date_filter", selected = "All")
+        updateSelectInput(session, "topic_filter", selected = "All")
+        updateSelectInput(session, "institution_filter", selected = "All")
         updateSelectInput(session, "date_filter", selected = "All")
         runjs('Shiny.onInputChange("id", null)')
     })
@@ -91,6 +124,20 @@ server <- shinyServer(function(input, output, session) {
             table <- table %>% 
                 rowwise() %>%
                 filter(input$author_filter %in% str_split(author, ", ")[[1]]) %>%
+                ungroup()
+        }
+
+        if(input$institution_filter != "All"){
+            table <- table %>% 
+                rowwise() %>%
+                filter(input$institution_filter %in% str_split(institution, ", ")[[1]]) %>%
+                ungroup()
+        }
+        
+        if(input$topic_filter != "All"){
+            table <- table %>% 
+                rowwise() %>%
+                filter(input$topic_filter %in% str_split(topic, ", ")[[1]]) %>%
                 ungroup()
         }
         

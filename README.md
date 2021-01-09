@@ -34,4 +34,4 @@ By filtering by publication year we can observe changing research focus over tim
 
 ## Contribute
 
-One person alone cannot possibly know and aggregate all relevant research. If you know a piece that is missing please open an issue above with either the full information or at least the link, and I will add it. Research should be publicly available (not behind a paywall) and introduce a new concept to the community.
+One person alone cannot possibly know and aggregate all relevant research. If you know a piece that is missing please open an issue above with either the full information or at least the link, and I will add it. Research should be publicly available (not behind a paywall) and introduce a new concept to the community (quality over quantity).
