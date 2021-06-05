@@ -148,7 +148,7 @@ server <- shinyServer(function(input, output, session) {
         aggregation_nodes <- table %>%
             separate_rows(!!rlang::sym(input$aggregate), sep = ", ") %>%
             group_by(!!rlang::sym(input$aggregate)) %>%
-            summarize(nodesize = 50*n(), .groups = 'drop') %>%
+            summarize(nodesize = 100*n(), .groups = 'drop') %>%
             mutate(title = !!rlang::sym(input$aggregate)) %>%
             mutate(!!paste0("first_", input$aggregate) := !!rlang::sym(input$aggregate)) %>%
             mutate(author = NA) # This is done to distinguish aggregation nodes from regular nodes
